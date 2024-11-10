@@ -1,0 +1,34 @@
+name: postgres-python
+services:
+  s-postgres:
+    image: postgres:13
+    container_name: some-postgres
+    environment:
+      POSTGRES_DB: Gorsky
+      POSTGRES_USER: me
+      POSTGRES_PASSWORD: Asg02031973
+    volumes:
+      - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks: 
+      - alp-net
+    healthcheck:
+      test: ["CMD-SHELL", "postgres -V"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+  s-python:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: Zapros
+    restart: on-failure
+    networks: 
+      - alp-net
+    depends_on:
+       s-postgres:
+        condition: service_healthy
+volumes:
+  data:
+networks:
+  alp-net:
